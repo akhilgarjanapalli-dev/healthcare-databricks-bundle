@@ -1,0 +1,43 @@
+resources:
+  jobs:
+    healthcare_job:
+      name: Healthcare_DAB_Job
+
+      email_notifications:
+        on_failure:
+          - "garjanapalliakhil@gmail.com"
+
+      tasks:
+        - task_key: Bronze_Load
+          max_retries: 3
+          notebook_task:
+            notebook_path: /Workspace/Users/garjanapalliakhil@gmail.com/01_Bronze_Healthcare
+            base_parameters:
+              environment: ${var.environment}
+
+        - task_key: Silver_Transformation
+          depends_on:
+            - task_key: Bronze_Load
+          max_retries: 3
+          notebook_task:
+            notebook_path: /Workspace/Users/garjanapalliakhil@gmail.com/02_Silver_Healthcare
+            base_parameters:
+              environment: ${var.environment}
+
+        - task_key: Data_Quality_Checks
+          depends_on:
+            - task_key: Silver_Transformation
+          max_retries: 3
+          notebook_task:
+            notebook_path: /Workspace/Users/garjanapalliakhil@gmail.com/04_Data_Quality_Checks
+            base_parameters:
+              environment: ${var.environment}
+
+        - task_key: Gold_Analytics
+          depends_on:
+            - task_key: Data_Quality_Checks
+          max_retries: 3
+          notebook_task:
+            notebook_path: /Workspace/Users/garjanapalliakhil@gmail.com/03_Gold_Healthcare_Analytics
+            base_parameters:
+              environment: ${var.environment}

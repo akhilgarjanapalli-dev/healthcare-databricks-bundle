@@ -1,0 +1,36 @@
+bundle:
+  name: healthcare_bundle
+
+include:
+  - resources/*.yml
+
+variables:
+  environment:
+    description: Environment for Healthcare Pipeline
+    default: dev
+
+targets:
+  dev:
+    default: true
+    variables:
+      environment: dev
+
+    resources:
+      jobs:
+        healthcare_job:
+          schedule:
+            quartz_cron_expression: "0 30 16 * * ?"
+            timezone_id: "Asia/Kolkata"
+            pause_status: PAUSED
+
+  prod:
+    variables:
+      environment: prod
+
+    resources:
+      jobs:
+        healthcare_job:
+          schedule:
+            quartz_cron_expression: "0 30 16 * * ?"
+            timezone_id: "Asia/Kolkata"
+            pause_status: UNPAUSED
