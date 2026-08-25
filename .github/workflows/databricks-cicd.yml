@@ -10,7 +10,6 @@ on:
       - main
 
 jobs:
-
   validate:
     name: Validate Databricks Bundle
     runs-on: ubuntu-latest
@@ -18,7 +17,6 @@ jobs:
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-      DATABRICKS_AUTH_TYPE: pat
 
     steps:
       - name: Checkout repository
@@ -29,7 +27,6 @@ jobs:
 
       - name: Validate Databricks Bundle
         run: databricks bundle validate -t dev
-
 
   deploy_dev:
     name: Deploy Databricks Bundle to DEV
@@ -43,7 +40,6 @@ jobs:
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-      DATABRICKS_AUTH_TYPE: pat
 
     steps:
       - name: Checkout repository
