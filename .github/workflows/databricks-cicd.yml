@@ -1,57 +1,16 @@
-name: Databricks CI
+name: Databricks CI CD
 
 on:
   pull_request:
     branches:
       - main
 
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-
-    env:
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Databricks CLI
-        uses: databricks/setup-cli@main
-
-      - name: Validate Databricks Bundle
-        run: databricks bundle validate -t devname: Databricks CI
-
-on:
-  pull_request:
+  push:
     branches:
       - main
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
 
-    env:
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Databricks CLI
-        uses: databricks/setup-cli@main
-
-      - name: Validate Databricks Bundle
-        run: databricks bundle validate -t devname: Databricks CI
-
-on:
-  pull_request:
-    branches:
-      - main
-
-jobs:
   validate:
     runs-on: ubuntu-latest
 
@@ -68,3 +27,26 @@ jobs:
 
       - name: Validate Databricks Bundle
         run: databricks bundle validate -t dev
+
+
+  deploy_dev:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    needs:
+      - validate
+
+    runs-on: ubuntu-latest
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Deploy Databricks Bundle to DEV
+        run: databricks bundle deploy -t dev
