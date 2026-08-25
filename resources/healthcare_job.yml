@@ -1,7 +1,7 @@
 resources:
   jobs:
     healthcare_job:
-      name: Healthcare_DAB_Job
+      name: Healthcare_DAB_Job_v2
 
       email_notifications:
         on_failure:
