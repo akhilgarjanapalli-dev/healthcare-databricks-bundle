@@ -10,6 +10,10 @@ on:
       - main
 
 jobs:
+
+  # ==========================================================
+  # 1. VALIDATE DATABRICKS BUNDLE
+  # ==========================================================
   validate:
     name: Validate Databricks Bundle
     runs-on: ubuntu-latest
@@ -29,6 +33,9 @@ jobs:
         run: databricks bundle validate -t dev
 
 
+  # ==========================================================
+  # 2. DEPLOY TO DEV
+  # ==========================================================
   deploy_dev:
     name: Deploy Databricks Bundle to DEV
     runs-on: ubuntu-latest
@@ -53,6 +60,9 @@ jobs:
         run: databricks bundle deploy -t dev
 
 
+  # ==========================================================
+  # 3. RUN DEV HEALTHCARE JOB
+  # ==========================================================
   run_dev:
     name: Run Healthcare Job in DEV
     runs-on: ubuntu-latest
@@ -75,3 +85,66 @@ jobs:
 
       - name: Run Healthcare DEV Job
         run: databricks bundle run -t dev healthcare_job
+
+
+  # ==========================================================
+  # 4. DEPLOY TO PROD
+  # ==========================================================
+  deploy_prod:
+    name: Deploy Databricks Bundle to PROD
+    runs-on: ubuntu-latest
+
+    needs:
+      - run_dev
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment:
+      name: production
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Validate Databricks Bundle for PROD
+        run: databricks bundle validate -t prod
+
+      - name: Deploy Databricks Bundle to PROD
+        run: databricks bundle deploy -t prod
+
+
+  # ==========================================================
+  # 5. RUN PROD HEALTHCARE JOB
+  # ==========================================================
+  run_prod:
+    name: Run Healthcare Job in PROD
+    runs-on: ubuntu-latest
+
+    needs:
+      - deploy_prod
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment:
+      name: production
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Run Healthcare PROD Job
+        run: databricks bundle run -t prod healthcare_job
